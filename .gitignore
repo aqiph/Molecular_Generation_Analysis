@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+.idea/
+
+**/.DS_Store
+
+# Jupter
+.ipynb_checkpoints
+*/.ipynb_checkpoints/*
+
+# Others
+tests/
