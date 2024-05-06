@@ -22,8 +22,8 @@ def filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column
                            dockingScore_column_name='r_i_docking_score', dockingScore_cutoff=0.0):
     """
     Filter compounds based on docking score
-    :param input_file_dockingScore: str, file path of the input docking score file
-    :param input_file_SMILES: str, file path of the input SMILES file
+    :param input_file_dockingScore: str, path of the input docking score file
+    :param input_file_SMILES: str, path of the input SMILES file
     :param id_column_name: str, name of the ID column in input_file_dockingScore
     :param dockingScore_column_name: str, name of the docking score column
     :param dockingScore_cutoff: float, docking score cutoff
@@ -65,8 +65,8 @@ def filter_by_property(input_file_property, input_file_SMILES, id_column_name='I
                        property_column_names=None, property_filters=None):
     """
     Filter compounds based on property cutoff
-    :param input_file_property: str, file path of the input property file
-    :param input_file_SMILES: str, file path of the input SMILES file
+    :param input_file_property: str, path of the input property file
+    :param input_file_SMILES: str, path of the input SMILES file
     :param id_column_name: str, name of the ID column in input_file_property
     :param property_column_names: list of strs or None, names of the property columns
     :param property_filters: dict or None, dict of functions for property filters
@@ -112,8 +112,8 @@ def filter_by_property(input_file_property, input_file_SMILES, id_column_name='I
 def get_clusterLabel(input_file_clustering, input_file, id_column_name='ID', clusterLabel_column_name='MCS Cluster'):
     """
     Get cluster labels
-    :param input_file_clustering: str, file path of the input cluster label file
-    :param input_file: str, file path of the input docking score and property file
+    :param input_file_clustering: str, path of the input cluster label file
+    :param input_file: str, path of the input docking score and property file
     :param id_column_name: str, name of the ID column in input_file_clustering
     :param clusterLabel_column_name: str, name of the cluster label column
     :return: None
