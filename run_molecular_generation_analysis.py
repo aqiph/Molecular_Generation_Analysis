@@ -62,20 +62,20 @@ def combine_results(input_file_list, columns=None):
 if __name__ == '__main__':
 
     ### 1. Apply docking score filter ###
-    # input_file_dockingScore = 'tests/test_SMILES_file.csv'
     # input_file_SMILES = 'tests/test_SMILES_file.csv'
+    # input_file_dockingScore = 'tests/test_dockingScore_filter.csv'
     # id_column_name = 'ID'
-    # filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column_name,
+    # filter_by_dockingScore(input_file_SMILES, input_file_dockingScore, id_column_name,
     #                        dockingScore_column_name='docking score', dockingScore_cutoff=-6.9)
 
 
     ### 2. Apply property filters ###
-    # input_file_property = 'tests/test_property_filter.csv'
     # input_file_SMILES = 'tests/test_SMILES_file.csv'
+    # input_file_property = 'tests/test_property_filter.csv'
     # id_column_name = 'ID'
     # property_column_names = ['Docking_Score', 'MW', 'logP', 'HBD', 'HBA', 'TPSA']
     # property_filters = {'MW': lambda x: x <= 650, 'logP': lambda x: x <= 5.5}
-    # filter_by_property(input_file_property, input_file_SMILES, id_column_name,
+    # filter_by_property(input_file_SMILES, input_file_property, id_column_name,
     #                    property_column_names=property_column_names, property_filters=property_filters)
 
 

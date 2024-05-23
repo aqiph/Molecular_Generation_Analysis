@@ -18,12 +18,12 @@ from tools import remove_unnamed_columns
 
 
 ### Apply docking score filter ###
-def filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column_name='ID',
+def filter_by_dockingScore(input_file_SMILES, input_file_dockingScore, id_column_name='ID',
                            dockingScore_column_name='r_i_docking_score', dockingScore_cutoff=0.0):
     """
     Filter compounds based on docking score
-    :param input_file_dockingScore: str, path of the input docking score file
     :param input_file_SMILES: str, path of the input SMILES file
+    :param input_file_dockingScore: str, path of the input docking score file
     :param id_column_name: str, name of the ID column in input_file_dockingScore
     :param dockingScore_column_name: str, name of the docking score column
     :param dockingScore_cutoff: float, docking score cutoff
@@ -32,13 +32,13 @@ def filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column
     # files
     output_file = os.path.splitext(os.path.abspath(input_file_dockingScore))[0] + '_DockingScore'
 
+    df_SMILES = pd.read_csv(input_file_SMILES)
+    df_SMILES = pd.DataFrame(df_SMILES, columns=['ID', 'SMILES', 'Cleaned_SMILES'])
+    print('Number of rows in SMILES file:', df_SMILES.shape[0])
     df = pd.read_csv(input_file_dockingScore)
     df.rename(columns={id_column_name:'ID', dockingScore_column_name:'Docking_Score'}, inplace=True)
     df = pd.DataFrame(df, columns=['ID', 'Docking_Score'])
     print('Number of rows in docking score file:', df.shape[0])
-    df_SMILES = pd.read_csv(input_file_SMILES)
-    df_SMILES = pd.DataFrame(df_SMILES, columns=['ID', 'SMILES', 'Cleaned_SMILES'])
-    print('Number of rows in SMILES file:', df_SMILES.shape[0])
 
     # round
     df['Docking_Score'] = df['Docking_Score'].apply(lambda score: np.round(score, decimals=3))
@@ -49,7 +49,7 @@ def filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column
     df_filtered = df[df['Docking_Score'] <= dockingScore_cutoff]
     df_filtered = pd.DataFrame(df_filtered, columns=['ID', 'Docking_Score'])
     # merge
-    df_filtered = pd.merge(df_filtered, df_SMILES, how='inner', on=['ID'])
+    df_filtered = pd.merge(df_filtered, df_SMILES, how='left', on=['ID'])
     df_filtered = pd.DataFrame(df_filtered, columns=['ID', 'SMILES', 'Cleaned_SMILES', 'Docking_Score'])
 
     # write output file
@@ -61,12 +61,12 @@ def filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column
 
 
 ### Apply property filters ###
-def filter_by_property(input_file_property, input_file_SMILES, id_column_name='ID',
+def filter_by_property(input_file_SMILES, input_file_property, id_column_name='ID',
                        property_column_names=None, property_filters=None):
     """
     Filter compounds based on property cutoff
-    :param input_file_property: str, path of the input property file
     :param input_file_SMILES: str, path of the input SMILES file
+    :param input_file_property: str, path of the input property file
     :param id_column_name: str, name of the ID column in input_file_property
     :param property_column_names: list of strs or None, names of the property columns
     :param property_filters: dict or None, dict of functions for property filters
@@ -80,13 +80,13 @@ def filter_by_property(input_file_property, input_file_SMILES, id_column_name='I
     # files
     output_file = os.path.splitext(os.path.abspath(input_file_property))[0] + '_Property'
 
+    df_SMILES = pd.read_csv(input_file_SMILES)
+    # df_SMILES = pd.DataFrame(df_SMILES, columns=['ID', 'SMILES', 'Cleaned_SMILES'])
+    print('Number of rows in SMILES file:', df_SMILES.shape[0])
     df = pd.read_csv(input_file_property)
     df.rename(columns={id_column_name:'ID'}, inplace=True)
     df = pd.DataFrame(df, columns=['ID']+property_column_names)
     print('Number of rows in property file:', df.shape[0])
-    df_SMILES = pd.read_csv(input_file_SMILES)
-    df_SMILES = pd.DataFrame(df_SMILES, columns=['ID', 'SMILES', 'Cleaned_SMILES'])
-    print('Number of rows in SMILES file:', df_SMILES.shape[0])
 
     # filter
     for column, filter in property_filters.items():
@@ -95,10 +95,9 @@ def filter_by_property(input_file_property, input_file_SMILES, id_column_name='I
         except Exception:
             print(f'Error: Filter for {column} column is not applied.')
             continue
-
     # merge
     df = pd.merge(df, df_SMILES, how='left', on=['ID'])
-    df = pd.DataFrame(df, columns=['ID', 'SMILES', 'Cleaned_SMILES']+property_column_names)
+    # df = pd.DataFrame(df, columns=['ID', 'SMILES', 'Cleaned_SMILES']+property_column_names)
 
     # write output file
     df = df.reset_index(drop=True)
@@ -123,7 +122,8 @@ def get_clusterLabel(input_file_clustering, input_file, id_column_name='ID', clu
 
     df_clustering = pd.read_csv(input_file_clustering)
     df_clustering.rename(columns={id_column_name:'ID', clusterLabel_column_name:'MCS_Cluster'}, inplace=True)
-    df_clustering = pd.DataFrame(df_clustering, columns=['ID', 'R-group', 'MCS_Cluster'])
+    # df_clustering = pd.DataFrame(df_clustering, columns=['ID', 'R-group', 'MCS_Cluster'])
+    df_clustering = pd.DataFrame(df_clustering, columns=['ID', 'MCS_Cluster'])
     print('Number of rows in cluster label file:', df_clustering.shape[0])
     df = pd.read_csv(input_file)
     print('Number of rows in SMILES file:', df.shape[0])
@@ -149,7 +149,7 @@ def select_cmpds_from_clusters(input_file, clusterLabel_column_name, method, **k
     :param method: str, method to select representatives, allowed values include 'best'
     :param outlier_label: label of outliers
     :param outlier_processing_method: str, method to process outliers, allowed values include 'include' and 'exclude'
-    :param count_per_cluster: int, number of compounds from each cluster
+    :param count_per_cluster: int or float, if it is int, number of compounds from each cluster; if it is float, it should be less than 1 and larger than 0
 
     :param property_column_names: list of str, names of the property column
     :param dockingScore_column_name: str, name of the docking score column
@@ -180,8 +180,12 @@ def select_cmpds_from_clusters(input_file, clusterLabel_column_name, method, **k
         # process other clusters
         else:
             count = kwargs.get('count_per_cluster', 1)   # get the idea number of compounds per cluster, default is 1
+            if count < 1: # if count is smaller than 1, regard it as percentage
+                count = round(df_cluster.shape[0] * count)
+                if outlier_processing_method == 'include':
+                    count = max(count, 1)
 
-        # get representatives from each cluster
+        ## get representatives from each cluster
         df_new_representative = pd.DataFrame()
         # get the best compounds
         if method == 'best':
@@ -307,28 +311,23 @@ def get_MCS_analog(df_cluster, SMILES_column_name, dockingScore_column_name, cou
 
 
 
-
-
-
-
-
 if __name__ == '__main__':
 
     ### 1. Apply docking score filter ###
-    # input_file_dockingScore = 'tests/test_dockingScore_filter.csv'
     # input_file_SMILES = 'tests/test_SMILES_file.csv'
+    # input_file_dockingScore = 'tests/test_dockingScore_filter.csv'
     # id_column_name = 'ID'
-    # filter_by_dockingScore(input_file_dockingScore, input_file_SMILES, id_column_name,
+    # filter_by_dockingScore(input_file_SMILES, input_file_dockingScore, id_column_name,
     #                     dockingScore_column_name='docking score', dockingScore_cutoff=-6.9)
 
 
     ### 2. Apply property filters ###
-    # input_file_property = 'tests/test_property_filter.csv'
     # input_file_SMILES = 'tests/test_SMILES_file.csv'
+    # input_file_property = 'tests/test_property_filter.csv'
     # id_column_name = 'ID'
     # property_column_names = ['Docking_Score', 'MW', 'logP', 'HBD', 'HBA', 'TPSA']
     # property_filters = {'MW':lambda x: x <= 650, 'logP':lambda x: x <= 5.5}
-    # filter_by_property(input_file_property, input_file_SMILES, id_column_name,
+    # filter_by_property(input_file_SMILES, input_file_property, id_column_name,
     #                 property_column_names=property_column_names, property_filters=property_filters)
 
 
